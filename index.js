@@ -6,9 +6,12 @@ const twilio = require('twilio');
 const axios = require('axios');
 
 const app = express();
+const PORT = process.env.PORT || 3001;
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+const NGROK_DOMAIN = process.env.NGROK_DOMAIN;
 
 // Initialize express-ws
-ExpressWs(app);
+expressWs(app);
 // Enable CORS
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(express.urlencoded({ extended: true })); // support encoded bodies
@@ -27,11 +30,9 @@ app.get('/', (req, res) => {
 app.post('/n8n', (req, res) => {
 
   const twiml = new twilio.twiml.VoiceResponse();
-  //console.log(twiml);
-  //twiml.say("Hello there!");
   const connect = twiml.connect();
   const conversationrelay = connect.conversationRelay({
-    url: 'wss://8477-2001-a61-a09-dd01-345d-fa07-8494-6620.ngrok-free.app/echo',
+    url: `wss://${NGROK_DOMAIN}/echo`,
     welcomeGreeting: 'Hi! Ask me anything!'
   });
   conversationrelay.language({
@@ -51,7 +52,7 @@ app.ws('/echo', (ws, req) => {
     const json_msg = JSON.parse(msg);
     if (json_msg.type === 'prompt') {
       const n8n_response = await axios.post(
-        'https://n8n-solutions.app.n8n.cloud/webhook/agent', 
+        N8N_WEBHOOK_URL, 
         {
           message: json_msg.voicePrompt,
           language: json_msg.lang,

@@ -7,7 +7,12 @@
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "keywords": ["n8n", "twilio", "voice", "integration"],
+  "keywords": [
+    "n8n",
+    "twilio",
+    "voice",
+    "integration"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -16,6 +21,6 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-ws": "^5.0.2",
-    "twilio": "^4.19.3"
+    "twilio": "^5.3.6"
   }
 }
