@@ -1,0 +1,224 @@
+{
+  "name": "Twilio integration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "1d7f5453-2a95-4247-837c-7b8f5fe145b9",
+      "name": "Webhook",
+      "webhookId": "47a2f7d3-3ee9-45b0-8562-a990d19af586"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant. You answer each message with the language defined at  {{ $json.body.language }}.\n\nThe output of this should only be a message without any special characters except:, . ! ?\nDo not use any characters that could break JSON syntax."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a5e7b404-7e51-4a6b-b2fa-d1a83e196a7d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "00508574-c742-416e-a0cc-2562525222d5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "G66f9hBlCfA9GQ0b",
+          "name": "n8n sales"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"type\": \"text\",\n  \"token\": \"{{ $json.output }}\",\n  \"last\": false,\n  \"interruptible\": true,\n  \"preemptible\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "45fa6a4b-51d9-4bd8-a655-dae4479bfcd1",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.session_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "2cac3a1b-0981-406f-b5c2-0e9629c5190c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "cityName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('City', ``, 'string') }}",
+        "language": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Language', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.openWeatherMapTool",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "id": "3061d905-546f-4db4-a4dc-1b2e4a0c0728",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "yDHHpZ0DDuUPlkeg",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-solutions.app.n8n.cloud",
+            "user-agent": "axios/1.13.5",
+            "content-length": "115",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "2001:a61:a09:dd01:345d:fa07:8494:6620",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "DE",
+            "cf-ray": "9d0c63d7a7a82205-MUC",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "2001:a61:a09:dd01:345d:fa07:8494:6620, 104.23.219.6",
+            "x-forwarded-host": "n8n-solutions.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-11-cb7f6dc87-bk27x",
+            "x-is-trusted": "yes",
+            "x-real-ip": "2001:a61:a09:dd01:345d:fa07:8494:6620"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "message": "Hello there! Call the freaking tool salesforce_sub!",
+            "language": "en-US",
+            "session_id": "etrjhrthfhfgjghfj",
+            "phone": "+4917626037618"
+          },
+          "webhookUrl": "https://n8n-solutions.app.n8n.cloud/webhook/agent",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "842a013b-4768-4529-95eb-5851ce4e94f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3615bdc95d6039c7873a191eb641b4ecf41b1b7fde9c4f1016c2d75e58851aa9"
+  },
+  "nodeGroups": [],
+  "id": "d7eNtUA7XPOgM5FhphNr2",
+  "tags": []
+}
